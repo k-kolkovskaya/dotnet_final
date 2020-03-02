@@ -4,15 +4,8 @@ using System.Text;
 
 namespace SushiBot
 {
-    class OrderItem : MenuItem
+    class OrderItem : MenuItem<int>
     {
-        public OrderItem(int count, MenuItem menuItem)
-        {
-            Count = count;
-            MenuItem = menuItem;
-        }
-
         public int Count { get; set; }
-        public MenuItem MenuItem { get; set; }
     }
 }

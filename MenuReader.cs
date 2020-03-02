@@ -9,11 +9,11 @@ namespace SushiBot
     {
         private const string Path = @"D:\Kristush\Projects\SushiBot\sushi.json";
 
-        public List<MenuItem> WriteDataToMenu()
+        public List<MenuItem<int>> WriteDataToMenu()
         {
             try
             {
-                List<MenuItem> restoredMenuItems = JsonConvert.DeserializeObject<List<MenuItem>>(File.ReadAllText(Path));
+                List<MenuItem<int>> restoredMenuItems = JsonConvert.DeserializeObject<List<MenuItem<int>>>(File.ReadAllText(Path));
                 return restoredMenuItems;
             }
             catch (IOException ex)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stripe;
+using System;
 using System.Collections.Generic;
 
 namespace SushiBot
@@ -7,7 +8,9 @@ namespace SushiBot
     {
         public void Start()
         {
-            CreateOrder();
+            //CreateOrder();
+            Email email = new Email();
+            email.CreateEMail();
         }
 
         public string GetName()
@@ -24,7 +27,7 @@ namespace SushiBot
             return email;  
         }
 
-        public List<MenuItem> ShowMenu()
+        public List<MenuItem<int>> ShowMenu()
         {
             Console.WriteLine("Choose serial number of the sushi that you want");
             MenuReader menuReader = new MenuReader();
@@ -33,6 +36,7 @@ namespace SushiBot
             {
                 Console.WriteLine($"Serial number: {menuItems[i].Id}, item: {menuItems[i].Name}, description: {menuItems[i].Description}, price: {menuItems[i].Price}");
             }
+            Console.WriteLine("Enter 0 to stop choosing and to add order");
 
             return menuItems;
         }
@@ -40,52 +44,64 @@ namespace SushiBot
         public Order CreateOrder()
         {
             User user = new User(GetName(), GetEmail());
+
             List<OrderItem> orderItems = new List<OrderItem>();
-            OrderItem newOrderItem = CreateOrderItem(ShowMenu());
-
-            for (int i = 0; i < newOrderItem.Count; i++)
+            while (AddNewItem(orderItems))
             {
-                orderItems.Add(newOrderItem);
+
             }
 
-            Console.WriteLine("If you want to continue type Y, else type N");
-            string answer = Console.ReadLine();
 
-            if (answer == "Y")
-            {
-                OrderItem anotherOrderItem = CreateOrderItem(ShowMenu());
-
-                for (int i = 0; i < anotherOrderItem.Count; i++)
-                {
-                    orderItems.Add(anotherOrderItem);
-                }
-            }
-            else
-            {
-                return new Order(orderItems, user, "adopted", new DateTime());
-            }
+            return new Order(orderItems, user, "adopted", new DateTime());
         }
 
 
-        public OrderItem CreateOrderItem(List<MenuItem> menuItems)
+        public OrderItem CreateOrderItem(List<MenuItem<int>> menuItems)
         {
             Console.WriteLine("Enter serial number, please");
             int serialNumber = Convert.ToInt32(Console.ReadLine());
 
-            MenuItem menuItem = new MenuItem();
-
-            for (int i = 0; i < menuItems.Count; i++)
+            if(serialNumber == 0)
             {
-                if (menuItems[i].Id == serialNumber)
+                return null;
+            } 
+            else
+            {
+                OrderItem orderItem = new OrderItem();
+
+                for (int i = 0; i < menuItems.Count; i++)
                 {
-                    menuItem = menuItems[i];
+                    if (menuItems[i].Id == serialNumber)
+                    {
+                        orderItem.Id = menuItems[i].Id;
+                        orderItem.Name = menuItems[i].Name;
+                        orderItem.Description = menuItems[i].Description;
+                        orderItem.Price = menuItems[i].Price;
+                    }
                 }
+
+                Console.WriteLine("Enter count from 1 to 10, please");
+                int count = Convert.ToInt32(Console.ReadLine());
+
+                orderItem.Count = count;
+
+                return orderItem;
             }
+            
+        }
 
-            Console.WriteLine("Enter count from 1 to 10, please");
-            int count = Convert.ToInt32(Console.ReadLine());
-
-            return new OrderItem(count, menuItem);
+        public Boolean AddNewItem(List<OrderItem> orderItems)
+        {
+            OrderItem newOrderItem = CreateOrderItem(ShowMenu());
+            if(newOrderItem != null)
+            {
+                orderItems.Add(newOrderItem);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
