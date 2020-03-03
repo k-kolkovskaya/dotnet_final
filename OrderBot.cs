@@ -6,11 +6,11 @@ namespace SushiBot
 {
     class OrderBot
     {
+        public delegate void OrderHandler(string message);
+        public event OrderHandler Notify;
         public void Start()
         {
-            //CreateOrder();
-            Email email = new Email();
-            email.CreateEMail();
+            CreateOrder();
         }
 
         public string GetName()
@@ -43,7 +43,9 @@ namespace SushiBot
 
         public Order CreateOrder()
         {
-            User user = new User(GetName(), GetEmail());
+            User user = new User();
+            user.Name = GetName();
+            user.Email = GetEmail();
 
             List<OrderItem> orderItems = new List<OrderItem>();
             while (AddNewItem(orderItems))
@@ -51,17 +53,32 @@ namespace SushiBot
 
             }
 
+            double sum = 0;
 
-            return new Order(orderItems, user, "adopted", new DateTime());
+            for (int i = 0; i < orderItems.Count; i++)
+            {
+                sum += (orderItems[i].Price * orderItems[i].Count);
+            }
+
+            Notify?.Invoke($"Total price is {sum}. The confirmation was sent to {user.Email}");
+
+            Email email = new Email(user.Email);
+            email.CreateEMail();
+            return new Order(orderItems, user, "adopted", new DateTime());            
         }
 
 
         public OrderItem CreateOrderItem(List<MenuItem<int>> menuItems)
         {
             Console.WriteLine("Enter serial number, please");
-            int serialNumber = Convert.ToInt32(Console.ReadLine());
+            string serialNumberString = Console.ReadLine();
+            int serialNumberInt;
+            if (!Int32.TryParse(serialNumberString, out serialNumberInt))
+            {
+                Console.WriteLine("That's not integer!!! Enter integer, please!");
+            }
 
-            if(serialNumber == 0)
+            if (serialNumberInt == 0)
             {
                 return null;
             } 
@@ -71,7 +88,7 @@ namespace SushiBot
 
                 for (int i = 0; i < menuItems.Count; i++)
                 {
-                    if (menuItems[i].Id == serialNumber)
+                    if (menuItems[i].Id == serialNumberInt)
                     {
                         orderItem.Id = menuItems[i].Id;
                         orderItem.Name = menuItems[i].Name;

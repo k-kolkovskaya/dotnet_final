@@ -8,26 +8,29 @@ namespace SushiBot
 {
     class Email
     {
-        public void CreateEMail()
+        const string myMail = "kek.kekov.1990@inbox.ru";
+        const string myName = "Kristina";
+        const string myPassword = "11235813ILAKa";
+
+        public Email(string emailAdress)
         {
-            // отправитель - устанавливаем адрес и отображаемое в письме имя
-            MailAddress from = new MailAddress("yuput26@gmail.com", "Kristush");
-            // кому отправляем
-            MailAddress to = new MailAddress("wgdetective@gmail.com");
-            // создаем объект сообщения
+            EmailAdress = emailAdress;
+        }
+
+        public string EmailAdress { get; set; }
+        public void CreateEMail()
+        {          
+            MailAddress from = new MailAddress(myMail, myName);
+            MailAddress to = new MailAddress(EmailAdress);
             MailMessage m = new MailMessage(from, to);
-            // тема письма
-            m.Subject = "Хехехехехе";
-            // текст письма
-            m.Body = "<h2>Вам письмишко!</h2>";
-            // письмо представляет код html
+            m.Subject = "Order Info";
+            m.Body = "<h2>Your order was accepted</h2>";
             m.IsBodyHtml = true;
-            // адрес smtp-сервера и порт, с которого будем отправлять письмо
-            SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
-            // логин и пароль
-            smtp.Credentials = new NetworkCredential("yuput26@gmail.com", "P%hR#s6uggZ-8cQ");
+            SmtpClient smtp = new SmtpClient("smtp.mail.ru", 465);
+            smtp.Credentials = new NetworkCredential(myMail, myPassword);
             smtp.EnableSsl = true;
             smtp.Send(m);
+            Console.ReadLine();
         }
     }
 }
